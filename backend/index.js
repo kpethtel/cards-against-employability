@@ -11,6 +11,10 @@ io.on('connection', function(socket){
   socket.on('chat message', function(msg){
     io.emit('chat message', msg);
   });
+
+  socket.on('player enters', function(player){
+    io.emit('announce player entry', `${player} is seeking employment`);
+  });
 });
 
 http.listen(3001, function(){

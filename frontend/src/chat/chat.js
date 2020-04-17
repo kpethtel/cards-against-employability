@@ -5,11 +5,13 @@ import './chat.css';
 const ENDPOINT = "localhost:3001"
 const socket = socketIOClient(ENDPOINT);
 
-function Chat() {
+const Chat = () => {
+
   const [message, setMessage] = useState("");
   const [chatLog, setChatLog] = useState([]);
   useEffect(() => {
     socket.on('chat message', data => addToChatMessages(data));
+    socket.on('announce player entry', data => addToChatMessages(data));
   }, []);
 
   const handleSubmit = (event) => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function Board() {
+const Board = () => {
   return (
     <div class="board">
     </div>
