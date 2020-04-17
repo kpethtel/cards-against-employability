@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from "react";
-import socketIOClient from "socket.io-client";
-
-const ENDPOINT = "localhost:3001"
-const socket = socketIOClient(ENDPOINT);
+import React, { useState } from "react";
+import { socket } from "../socket/socket.js";
 
 const NamePrompt = ({ handleNameSetting }) => {
 
