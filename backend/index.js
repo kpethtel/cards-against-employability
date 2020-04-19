@@ -30,6 +30,11 @@ io.on('connection', function(socket){
         io.emit('deal question', question);
       });
     }).limit(1);
+    mongoose.model('answers').find({}, function(err, answers) {
+      mongoose.model('answers').populate(answers, {path: 'answers'}, function(err, answer) {
+        io.emit('deal answers', answer);
+      });
+    }).limit(1);
   });
 });
 
