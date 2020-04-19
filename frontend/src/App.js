@@ -26,7 +26,7 @@ const App = () => {
   }
 
   return (
-    <div clasNames="app">
+    <div className="app">
       { displaySubcomponent() }
     </div>
   );
