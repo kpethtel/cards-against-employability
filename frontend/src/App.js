@@ -14,16 +14,19 @@ const App = () => {
 
   const displaySubcomponent = () => {
     if (playerName === "") {
-      return <NamePrompt
-        handleNameSetting={handleNameSetting}
-      />
+      return <NamePrompt handleNameSetting={handleNameSetting} />
     } else {
-      return <Chat playerName={playerName} />
+      return (
+        <div>
+          <Board />
+          <Chat playerName={playerName} />
+        </div>
+      )
     }
   }
 
   return (
-    <div class="app">
+    <div clasNames="app">
       { displaySubcomponent() }
     </div>
   );

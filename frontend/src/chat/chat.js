@@ -32,8 +32,8 @@ const Chat = () => {
   }
 
   return (
-    <div class="chat">
-      <div class="messageBox">
+    <div className="chat">
+      <div className="messageBox">
         <ul id="messages">
           { renderChatMessages() }
         </ul>

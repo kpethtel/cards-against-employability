@@ -2,6 +2,17 @@ var express = require('express');
 var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
+const mongoose = require('mongoose');
+var fs = require('fs')
+var dotenv = require('dotenv');
+dotenv.config();
+
+const db_uri = process.env.MONGODB_URI;
+mongoose.connect(db_uri);
+
+fs.readdirSync(__dirname + '/models').forEach(function(filename) {
+  if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
+});
 
 app.get('/', function(req, res){
   res.send({ response: "Server running" }).status(200);
@@ -14,6 +25,11 @@ io.on('connection', function(socket){
 
   socket.on('player enters', function(player){
     io.emit('announce player entry', `${player} is seeking employment`);
+    mongoose.model('questions').find({}, function(err, questions) {
+      mongoose.model('questions').populate(questions, {path: 'questions'}, function(err, question) {
+        io.emit('deal question', question);
+      });
+    }).limit(1);
   });
 });
 

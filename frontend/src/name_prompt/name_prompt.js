@@ -17,7 +17,7 @@ const NamePrompt = ({ handleNameSetting }) => {
   }
 
   return (
-    <div class="name-prompt">
+    <div className="name-prompt">
       <form onSubmit={handleSubmit}>
         <label>Give yourself a name</label>
         <input
