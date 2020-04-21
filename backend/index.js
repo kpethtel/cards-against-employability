@@ -3,6 +3,7 @@ var app = express();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 const mongoose = require('mongoose');
+const objectId = mongoose.ObjectId
 var fs = require('fs')
 var dotenv = require('dotenv');
 dotenv.config();
@@ -35,6 +36,15 @@ io.on('connection', function(socket){
         io.emit('deal answers', answer);
       });
     }).limit(1);
+  });
+
+  socket.on('select answer', function(answerId){
+    const answer = mongoose.model('answers').findById(mongoose.Types.ObjectId(answerId));
+    answer.then((doc)=>{
+      io.emit('announce winner', doc);
+    }).catch((err)=>{
+      console.log(err);
+    });
   });
 });
 

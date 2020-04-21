@@ -12,22 +12,30 @@ const App = () => {
     setPlayerName(name);
   }
 
-  const displaySubcomponent = () => {
-    if (playerName === "") {
-      return <NamePrompt handleNameSetting={handleNameSetting} />
-    } else {
-      return (
-        <div>
-          <Board />
-          <Chat playerName={playerName} />
-        </div>
-      )
-    }
+  const needsName = playerName === "";
+
+  const renderNamePrompt = () => {
+    return <NamePrompt handleNameSetting={handleNameSetting} />
+  };
+
+  const renderBoard = () => {
+    return <Board />
+  }
+
+  const renderChat = () => {
+    return <Chat playerName={playerName} />
   }
 
   return (
     <div className="app">
-      { displaySubcomponent() }
+      {needsName ? (
+        renderNamePrompt()
+      ) : (
+        <div className="game">
+          {renderBoard()}
+          {renderChat()}
+        </div>
+      )}
     </div>
   );
 }

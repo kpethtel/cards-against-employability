@@ -1,6 +1,7 @@
 import React from "react";
+import './question.css'
 
-const Question = ({text, id}) => {
+const Question = ({text}) => {
   return (
     <div className="question">
       <p>{text}</p>
