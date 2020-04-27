@@ -1,0 +1,25 @@
+.board {
+  scrollbar-width: none;
+  overflow-y: scroll;
+}
+
+.board::-webkit-scrollbar {
+  display: none;
+}
+
+.question {
+  height: 100px;
+}
+
+.activeRound {
+  height: 100%;
+}
+
+.answersSection {
+  align-content: space-around;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 100%;
+  width: 100%;
+}

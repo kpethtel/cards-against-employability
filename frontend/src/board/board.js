@@ -11,7 +11,9 @@ const Board = () => {
   const [winner, setWinner] = useState('');
   useEffect(() => {
     socket.on('deal question', data => setQuestion(data[0]));
-    socket.on('deal answers', data => setAnswers([data[0]]));
+    socket.on('deal answers', data => setAnswers(
+      [data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0]]
+    ));
     socket.on('announce winner', data => setWinner(data.text))
   }, []);
 
@@ -29,13 +31,17 @@ const Board = () => {
 
   const renderAnswers = () => {
     if (answers.length > 0) {
-      return answers.map((answer) => {
-        return <Answer
-          text={answer.text}
-          id={answer._id}
-          onSelect={selectAnswer}
-        />
-      });
+      return <div className="answersSection">
+        {
+          answers.map((answer) => {
+            return <Answer
+              text={answer.text}
+              id={answer._id}
+              onSelect={selectAnswer}
+            />
+          })
+        }
+      </div>
     }
   }
 
@@ -48,7 +54,7 @@ const Board = () => {
       {winner ? (
         renderWinner()
       ) : (
-        <div>
+        <div className="activeRound">
           { renderQuestion() }
           { renderAnswers() }
         </div>
