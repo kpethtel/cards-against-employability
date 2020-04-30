@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Chat from "./chat/chat.js"
-import Board from "./board/board.js"
-import NamePrompt from "./name_prompt/name_prompt.js"
+import Chat from "../chat/chat.js"
+import Board from "../board/board.js"
+import NamePrompt from "../name_prompt/name_prompt.js"
 import './App.css';
 
 const App = () => {

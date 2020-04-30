@@ -4,7 +4,7 @@ import './question.css'
 const Question = ({text}) => {
   return (
     <div className="question">
-      <p>{text}</p>
+      {text}
     </div>
   );
 }

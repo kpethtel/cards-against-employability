@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { socket } from "../socket/socket.js";
+import { socket } from "../../utils/socket/socket.js";
 
 import './chat.css';
 

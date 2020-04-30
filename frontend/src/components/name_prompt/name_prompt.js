@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { socket } from "../socket/socket.js";
+import { socket } from "../../utils/socket/socket.js";
 import './name_prompt.css'
 
 const NamePrompt = ({ handleNameSetting }) => {
