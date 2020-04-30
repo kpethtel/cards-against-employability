@@ -12,7 +12,7 @@ const Board = () => {
   useEffect(() => {
     socket.on('deal question', data => setQuestion(data[0]));
     socket.on('deal answers', data => setAnswers(
-      [data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0]]
+      [data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0]]
     ));
     socket.on('announce winner', data => setWinner(data.text))
   }, []);
