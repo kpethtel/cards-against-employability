@@ -1,19 +1,13 @@
-var express = require('express');
-var app = express();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
-const mongoose = require('mongoose');
-const objectId = mongoose.ObjectId
-var fs = require('fs')
-var dotenv = require('dotenv');
-dotenv.config();
+import express from 'express';
+import http from 'http';
+import ioClient from 'socket.io'
+import models, { connectDb } from './models/index.js';
 
-const db_uri = process.env.MONGODB_URI;
-mongoose.connect(db_uri);
+const app = express();
+const server = http.createServer(app);
+const io = ioClient(server);
 
-fs.readdirSync(__dirname + '/models').forEach(function(filename) {
-  if (~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
-});
+connectDb();
 
 app.get('/', function(req, res){
   res.send({ response: "Server running" }).status(200);
@@ -26,13 +20,15 @@ io.on('connection', function(socket){
 
   socket.on('player enters', function(player){
     io.emit('announce player entry', `${player} is seeking employment`);
-    mongoose.model('questions').find({}, function(err, questions) {
-      mongoose.model('questions').populate(questions, {path: 'questions'}, function(err, question) {
+    models.Question.find({}, function(err, questions) {
+      models.Question.populate(questions, {path: 'questions'}, function(err, question) {
+        console.log(question);
         io.emit('deal question', question);
       });
     }).limit(1);
-    mongoose.model('answers').find({}, function(err, answers) {
-      mongoose.model('answers').populate(answers, {path: 'answers'}, function(err, answer) {
+    models.Answer.find({}, function(err, answers) {
+      models.Answer.populate(answers, {path: 'answers'}, function(err, answer) {
+        console.log(answer)
         io.emit('deal answers', answer);
       });
     }).limit(1);
@@ -48,6 +44,6 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(3001, function(){
+server.listen(3001, function(){
   console.log('listening on *:3001');
 });
