@@ -1,7 +1,9 @@
 import express from 'express';
 import http from 'http';
-import ioClient from 'socket.io'
-import models, { connectDb } from './models/index.js';
+import ioClient from 'socket.io';
+import mongoose from 'mongoose';
+import connectDb from './config/connect_db.js';
+import models from './models/index.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +37,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('select answer', function(answerId){
-    const answer = mongoose.model('answers').findById(mongoose.Types.ObjectId(answerId));
+    const answer = models.Answer.findById(mongoose.Types.ObjectId(answerId));
     answer.then((doc)=>{
       io.emit('announce winner', doc);
     }).catch((err)=>{
