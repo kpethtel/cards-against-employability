@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { socket } from "../../utils/socket/socket.js";
 import Question from '../question/question.js';
 import Answer from "../answer/answer.js";
+import GifAnswersSection from "../gif_answers_section/gif_answers_section.js";
 
 import './board.css';
 
@@ -29,20 +30,35 @@ const Board = () => {
     }
   }
 
-  const renderAnswers = () => {
+  const renderAnswersSection = () => {
     if (answers.length > 0) {
+      let answersSection;
+      switch (question.type) {
+        case 'q&a':
+          answersSection = renderAnswerCards();
+          break;
+        case 'gif':
+          answersSection = renderGifAnswersSection();
+          break;
+        default:
+          break;
+      }
       return <div className="answersSection">
-        {
-          answers.map((answer) => {
-            return <Answer
-              text={answer.text}
-              id={answer._id}
-              onSelect={selectAnswer}
-            />
-          })
-        }
+        {answersSection}
       </div>
     }
+  }
+
+  const renderGifAnswersSection = () => <GifAnswersSection onSelect={selectAnswer}/>
+
+  const renderAnswerCards = () => {
+    return answers.map((answer) => {
+      return <Answer
+        text={answer.text}
+        id={answer._id}
+        onSelect={selectAnswer}
+      />
+    });
   }
 
   const renderWinner = () => {
@@ -56,7 +72,7 @@ const Board = () => {
       ) : (
         <div className="activeRound">
           { renderQuestion() }
-          { renderAnswers() }
+          { renderAnswersSection() }
         </div>
       )}
     </div>
