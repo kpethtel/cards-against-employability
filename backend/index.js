@@ -36,13 +36,17 @@ io.on('connection', function(socket){
     }).limit(1);
   });
 
-  socket.on('select answer', function(answerId){
-    const answer = models.Answer.findById(mongoose.Types.ObjectId(answerId));
-    answer.then((doc)=>{
-      io.emit('announce winner', doc);
-    }).catch((err)=>{
-      console.log(err);
-    });
+  socket.on('select answer', function(type, message){
+    if (type === 'gif') {
+      io.emit('announce winner', message);
+    } else if (type === 'q&a') {
+      const answer = models.Answer.findById(mongoose.Types.ObjectId(message));
+      answer.then((doc)=>{
+        io.emit('announce winner', doc.text);
+      }).catch((err)=>{
+        console.log(err);
+      });
+    }
   });
 });
 

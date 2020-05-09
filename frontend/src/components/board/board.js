@@ -15,11 +15,11 @@ const Board = () => {
     socket.on('deal answers', data => setAnswers(
       [data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0]]
     ));
-    socket.on('announce winner', data => setWinner(data.text))
+    socket.on('announce winner', data => setWinner(data))
   }, []);
 
-  const selectAnswer = (id) => {
-    socket.emit('select answer', id);
+  const selectAnswer = (type, message) => {
+    socket.emit('select answer', type, message);
   }
 
   const renderQuestion = () => {
@@ -53,16 +53,34 @@ const Board = () => {
 
   const renderAnswerCards = () => {
     return answers.map((answer) => {
-      return <Answer
-        text={answer.text}
-        id={answer._id}
-        onSelect={selectAnswer}
-      />
+      return (
+        <Answer
+          text={answer.text}
+          id={answer._id}
+          onSelect={selectAnswer}
+        />
+      )
     });
   }
 
   const renderWinner = () => {
-    return <p>{winner}</p>
+    let winnerCard;
+    switch (question.type) {
+      case 'q&a':
+        winnerCard = <span>{winner}</span>
+        break;
+      case 'gif':
+        winnerCard = <img src={winner} alt="winner" />
+        break;
+      default:
+        break;
+    }
+    return (
+      <div className="winner">
+        We have a winner
+        {winnerCard}
+      </div>
+    )
   }
 
   return (

@@ -5,7 +5,7 @@ const Answer = ({text, id, onSelect}) => {
   return (
     <div
       className="answer"
-      onClick={() => onSelect(id)}>
+      onClick={() => onSelect('q&a', id)}>
       {text}
     </div>
   );

@@ -23,3 +23,9 @@
   height: 100%;
   width: 100%;
 }
+
+.winner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
