@@ -22,8 +22,8 @@ const GifAnswersSection = ({onSelect}) => {
     onSelect('gif', giphyURLs[imageIndex])
   }
 
-  const shuffle = () => {
-    setImageIndex(prevState => (prevState + 2 === giphyURLs.length) ? 0 : prevState + 1);
+  const next = () => {
+    setImageIndex(prevState => (prevState + 1 === giphyURLs.length) ? 0 : prevState + 1);
   }
 
   const renderTextInput = () => {
@@ -46,8 +46,10 @@ const GifAnswersSection = ({onSelect}) => {
     return (
       <div className="imageSection" >
         <img src={giphyURLs[imageIndex]} alt="answer" />
-        <button label="shuffle" onClick={shuffle}/>
-        <button label="submit" onClick={handleFinalSubmission}/>
+        <div className="controls">
+          <button label="shuffle" onClick={next}>Shuffle</button>
+          <button label="submit" onClick={handleFinalSubmission}>Submit</button>
+        </div>
       </div>
     )
   }
