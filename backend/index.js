@@ -4,15 +4,16 @@ import ioClient from 'socket.io';
 import mongoose from 'mongoose';
 import connectDb from './config/connect_db.js';
 import models from './models/index.js';
+import dealQuestion from './services/deal_question.js';
 
 const app = express();
 const server = http.createServer(app);
-const io = ioClient(server);
+export const io = ioClient(server);
 
 connectDb();
 
 app.get('/', function(req, res){
-  res.send({ response: "Server running" }).status(200);
+  res.send({ response: 'Server running' }).status(200);
 });
 
 io.on('connection', function(socket){
@@ -20,20 +21,12 @@ io.on('connection', function(socket){
     io.emit('chat message', msg);
   });
 
+  socket.on('start round', function(){
+    dealQuestion();
+  })
+
   socket.on('player enters', function(player){
     io.emit('announce player entry', `${player} is seeking employment`);
-    models.Question.find({}, function(err, questions) {
-      models.Question.populate(questions, {path: 'questions'}, function(err, question) {
-        console.log(question);
-        io.emit('deal question', question);
-      });
-    }).limit(1);
-    models.Answer.find({}, function(err, answers) {
-      models.Answer.populate(answers, {path: 'answers'}, function(err, answer) {
-        console.log(answer)
-        io.emit('deal answers', answer);
-      });
-    }).limit(1);
   });
 
   socket.on('select answer', function(type, message){
@@ -46,6 +39,8 @@ io.on('connection', function(socket){
       }).catch((err)=>{
         console.log(err);
       });
+    } else {
+      console.log('not implemented yet');
     }
   });
 });

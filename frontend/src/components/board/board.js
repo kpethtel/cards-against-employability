@@ -3,15 +3,19 @@ import { socket } from "../../utils/socket/socket.js";
 import Question from '../question/question.js';
 import Answer from "../answer/answer.js";
 import GifAnswersSection from "../gif_answers_section/gif_answers_section.js";
+import Winner from "../winner/winner.js";
 
 import './board.css';
 
 const Board = () => {
-  const [question, setQuestion] = useState({});
+  const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState([]);
   const [winner, setWinner] = useState('');
   useEffect(() => {
-    socket.on('deal question', data => setQuestion(data[0]));
+    socket.on('deal question', data => {
+      setQuestion(data[0]);
+      setWinner('');
+    });
     socket.on('deal answers', data => setAnswers(
       [data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0]]
     ));
@@ -20,6 +24,10 @@ const Board = () => {
 
   const selectAnswer = (type, message) => {
     socket.emit('select answer', type, message);
+  }
+
+  const nextRound = () => {
+    socket.emit('start round');
   }
 
   const renderQuestion = () => {
@@ -31,22 +39,22 @@ const Board = () => {
   }
 
   const renderAnswersSection = () => {
-    if (answers.length > 0) {
-      let answersSection;
-      switch (question.type) {
-        case 'q&a':
-          answersSection = renderAnswerCards();
-          break;
-        case 'gif':
-          answersSection = renderGifAnswersSection();
-          break;
-        default:
-          break;
-      }
-      return <div className="answersSection">
+    let answersSection;
+    switch (question.type) {
+      case 'q&a':
+        answersSection = renderAnswerCards();
+        break;
+      case 'gif':
+        answersSection = renderGifAnswersSection();
+        break;
+      default:
+        break;
+    }
+    return (
+      <div className="answersSection">
         {answersSection}
       </div>
-    }
+    )
   }
 
   const renderGifAnswersSection = () => <GifAnswersSection onSelect={selectAnswer}/>
@@ -63,36 +71,31 @@ const Board = () => {
     });
   }
 
-  const renderWinner = () => {
-    let winnerCard;
-    switch (question.type) {
-      case 'q&a':
-        winnerCard = <span>{winner}</span>
-        break;
-      case 'gif':
-        winnerCard = <img src={winner} alt="winner" />
-        break;
-      default:
-        break;
-    }
+  const renderWinner = () => <Winner winner={winner} questionType={question.type} nextRound={nextRound}/>
+
+
+  const renderWaitingRoom = () => {
+    return <button label="start" onClick={nextRound}>Start</button>
+  }
+
+  const renderActiveRound = () => {
     return (
-      <div className="winner">
-        We have a winner
-        {winnerCard}
+      <div className="activeRound">
+        { renderQuestion() }
+        { renderAnswersSection() }
       </div>
     )
   }
 
+  const renderPhase = () => {
+    if (question.length === 0) { return renderWaitingRoom() }
+    if (winner.length === 0) { return renderActiveRound() }
+    return renderWinner();
+  }
+
   return (
     <div className="board">
-      {winner ? (
-        renderWinner()
-      ) : (
-        <div className="activeRound">
-          { renderQuestion() }
-          { renderAnswersSection() }
-        </div>
-      )}
+      {renderPhase()}
     </div>
   );
 }
