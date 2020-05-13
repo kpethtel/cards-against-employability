@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { getGif } from "../../actions/get_gif.js"
 
 const GifAnswersSection = ({onSelect}) => {
