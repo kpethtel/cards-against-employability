@@ -3,7 +3,7 @@ import Question from "../../question/question.js";
 import Answer from "../../answer/answer.js";
 import GifAnswersSection from "../../gif_answers_section/gif_answers_section.js";
 
-const Selection = ({question, answers, selectAnswer}) => {
+const Selection = ({question, answers, onSelect}) => {
 
   const renderQuestion = () => {
     if (question.text) {
@@ -32,7 +32,7 @@ const Selection = ({question, answers, selectAnswer}) => {
     )
   }
 
-  const renderGifAnswersSection = () => <GifAnswersSection onSelect={selectAnswer}/>
+  const renderGifAnswersSection = () => <GifAnswersSection onSelect={onSelect}/>
 
   const renderAnswerCards = () => {
     return answers.map((answer) => {
@@ -40,7 +40,7 @@ const Selection = ({question, answers, selectAnswer}) => {
         <Answer
           text={answer.text}
           id={answer._id}
-          onSelect={selectAnswer}
+          onSelect={onSelect}
         />
       )
     });

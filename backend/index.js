@@ -10,6 +10,11 @@ const app = express();
 const server = http.createServer(app);
 export const io = ioClient(server);
 
+// it would be better to count open connections but there is/was a bug around that in socket.io
+var playerCount = 0;
+const SELECTED_ANSWERS = [];
+const votes = {};
+
 connectDb();
 
 app.get('/', function(req, res){
@@ -17,6 +22,7 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
+  playerCount++;
   socket.on('chat message', function(msg){
     io.emit('chat message', msg);
   });
@@ -29,19 +35,37 @@ io.on('connection', function(socket){
     io.emit('announce player entry', `${player} is seeking employment`);
   });
 
-  socket.on('select answer', function(type, message){
-    if (type === 'gif') {
-      io.emit('announce winner', message);
-    } else if (type === 'q&a') {
-      const answer = models.Answer.findById(mongoose.Types.ObjectId(message));
-      answer.then((doc)=>{
-        io.emit('announce winner', doc.text);
-      }).catch((err)=>{
-        console.log(err);
-      });
-    } else {
-      console.log('not implemented yet');
+  socket.on('select answer', function(message){
+    SELECTED_ANSWERS.push(message);
+    if (SELECTED_ANSWERS.length === playerCount) {
+      io.emit('vote on selected', SELECTED_ANSWERS)
     }
+  });
+
+  socket.on('cast vote', function(message){
+    votes[message] ? votes[message]++ : votes[message] = 1
+    if (votes.length != playerCount) return
+    // needs handling for ties
+    const winner = votes.reduce((previous, current) => (current[1] >= previous[1] ? current : previous))[0];
+    io.emit('announce winner', winner.key);
+
+    // if (type === 'gif') {
+    //   io.emit('announce winner', winner.key);
+    // } else if (type === 'q&a') {
+    //   const answer = models.Answer.findById(mongoose.Types.ObjectId(message));
+    //   answer.then((doc) => {
+    //     io.emit('announce winner', doc.text);
+    //   }).catch((err) => {
+    //     console.log(err);
+    //   });
+    // } else {
+    //   console.log('not implemented yet');
+    // }
+  })
+
+  socket.on('disconnect',function(){
+    playerCount--;
+    console.log('user disconnected');
   });
 });
 

@@ -10,16 +10,25 @@ const Board = () => {
   const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState([]);
   const [winner, setWinner] = useState('');
+  const [phase, setPhase] = useState('waiting');
   useEffect(() => {
     socket.on('deal question', data => {
-      console.log('got question', data)
       setQuestion(data[0]);
+      setPhase('activeRound');
       setWinner('');
     });
-    socket.on('deal answers', data => setAnswers(
-      [data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0], data[0]]
-    ));
-    socket.on('announce winner', data => setWinner(data))
+    socket.on('deal answers', data => {
+      setAnswers(data);
+      setPhase('selectAnswer');
+    });
+    socket.on('vote on selected', data => {
+      setAnswers('data');
+      setPhase('vote');
+    });
+    socket.on('announce winner', data => {
+      setWinner(data);
+      setPhase('showWinner');
+    });
   }, []);
 
   const nextRound = () => {
@@ -27,17 +36,39 @@ const Board = () => {
   }
 
   const selectAnswer = (type, message) => {
+    setAnswers([]);
+    setPhase('intermission');
     socket.emit('select answer', type, message);
   }
+
+  const onVote = (type, message) => {
+    setAnswers([]);
+    socket.emit('cast vote', type, message);
+  }
+
+  const renderWaitingRoom = () => <WaitingRoom nextRound={nextRound} />
+
+  const renderSelectionPhase = () => <Selection question={question} answers={answers} onSelect={selectAnswer} />
+
+  const renderVote = () => <Selection question={question} answers={answers} onSelect={onVote} />
 
   const renderWinner = () => <Winner winner={winner} questionType={question.type} nextRound={nextRound}/>
 
   const renderPhase = () => {
-    if (question.length === 0) {return <WaitingRoom nextRound={nextRound} />}
-    if (winner.length === 0) {
-      return <Selection question={question} answers={answers} selectAnswer={selectAnswer} />
+    switch (phase) {
+      case 'waiting':
+        return renderWaitingRoom();
+      case 'selectAnswer':
+        return renderSelectionPhase();
+      case 'intermission':
+        return <span>Hey</span>
+      case 'vote':
+        return renderVote(onVote);
+      case 'showWinner':
+        return renderWinner();
+      default:
+        return renderSelectionPhase(); //this should never happen
     }
-    return renderWinner();
   }
 
   return (
