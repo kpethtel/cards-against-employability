@@ -48,9 +48,7 @@ const Board = () => {
 
   const renderWaitingRoom = () => <WaitingRoom nextRound={nextRound} />
 
-  const renderSelectionPhase = () => <Selection question={question} answers={answers} onSelect={selectAnswer} />
-
-  const renderVote = () => <Selection question={question} answers={answers} onSelect={onVote} />
+  const renderSelectionPhase = (onSelect) => <Selection question={question} answers={answers} onSelect={onSelect} />
 
   const renderWinner = () => <Winner winner={winner} questionType={question.type} nextRound={nextRound}/>
 
@@ -59,11 +57,11 @@ const Board = () => {
       case 'waiting':
         return renderWaitingRoom();
       case 'selectAnswer':
-        return renderSelectionPhase();
+        return renderSelectionPhase(selectAnswer);
       case 'intermission':
         return <span>Hey</span>
       case 'vote':
-        return renderVote(onVote);
+        return renderSelectionPhase(onVote);
       case 'showWinner':
         return renderWinner();
       default:
