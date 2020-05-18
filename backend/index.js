@@ -11,9 +11,10 @@ const server = http.createServer(app);
 export const io = ioClient(server);
 
 // it would be better to count open connections but there is/was a bug around that in socket.io
+// this approach is likely inadequate and will need to be improved
 var playerCount = 0;
-const SELECTED_ANSWERS = [];
-const votes = {};
+var selected_answers = [];
+var votes = {};
 
 connectDb();
 
@@ -22,12 +23,16 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
+
   playerCount++;
+  console.log('player count', playerCount)
+
   socket.on('chat message', function(msg){
     io.emit('chat message', msg);
   });
 
   socket.on('start round', function(){
+    console.log(`Socket ${socket.id} connected.`);
     dealQuestion();
   })
 
@@ -35,32 +40,41 @@ io.on('connection', function(socket){
     io.emit('announce player entry', `${player} is seeking employment`);
   });
 
-  socket.on('select answer', function(message){
-    SELECTED_ANSWERS.push(message);
-    if (SELECTED_ANSWERS.length === playerCount) {
-      io.emit('vote on selected', SELECTED_ANSWERS)
+  socket.on('select answer', function(type, message){
+    selected_answers.push(message);
+    if (selected_answers.length === playerCount) {
+      io.emit('vote on selected', selected_answers);
+      selected_answers = [];
     }
   });
 
-  socket.on('cast vote', function(message){
-    votes[message] ? votes[message]++ : votes[message] = 1
-    if (votes.length != playerCount) return
-    // needs handling for ties
-    const winner = votes.reduce((previous, current) => (current[1] >= previous[1] ? current : previous))[0];
-    io.emit('announce winner', winner.key);
+  socket.on('cast vote', function(type, incomingVote){
+    let vote;
+    if (type === 'gif') {
+      vote = incomingVote;
+    } else if (type === 'q&a') {
+      const answer = models.Answer.findById(mongoose.Types.ObjectId(incomingVote));
+      answer.then((doc) => {
+        vote = doc.text
+      }).catch((err) => {
+        console.log(err);
+      });
+    } else {
+      console.log('not implemented yet');
+    }
 
-    // if (type === 'gif') {
-    //   io.emit('announce winner', winner.key);
-    // } else if (type === 'q&a') {
-    //   const answer = models.Answer.findById(mongoose.Types.ObjectId(message));
-    //   answer.then((doc) => {
-    //     io.emit('announce winner', doc.text);
-    //   }).catch((err) => {
-    //     console.log(err);
-    //   });
-    // } else {
-    //   console.log('not implemented yet');
-    // }
+    console.log('votes: ', votes)
+    votes[vote] ? votes[vote]++ : votes[vote] = 1
+    const voteTotal = Object.keys(votes).length
+    if (voteTotal != playerCount) return
+    // needs handling for ties
+    const maxVotes = Object.values(votes).reduce((a, b) => obj[a] > obj[b] ? a : b);
+    const winner = Object.keys(votes).reduce((acc, k)=> {
+      if (votes[k] === maxVotes) { acc.push(k) }
+      return acc
+    }, []);
+    io.emit('announce winner', winner);
+    votes = {};
   })
 
   socket.on('disconnect',function(){

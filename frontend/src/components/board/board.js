@@ -3,6 +3,7 @@ import { socket } from "../../utils/socket/socket.js";
 import Winner from "../winner/winner.js";
 import WaitingRoom from '../phases/waiting_room/waiting_room.js';
 import Selection from '../phases/selection/selection.js'
+import Vote from '../phases/vote/vote.js'
 
 import './board.css';
 
@@ -22,7 +23,7 @@ const Board = () => {
       setPhase('selectAnswer');
     });
     socket.on('vote on selected', data => {
-      setAnswers('data');
+      setAnswers(data);
       setPhase('vote');
     });
     socket.on('announce winner', data => {
@@ -48,20 +49,22 @@ const Board = () => {
 
   const renderWaitingRoom = () => <WaitingRoom nextRound={nextRound} />
 
-  const renderSelectionPhase = (onSelect) => <Selection question={question} answers={answers} onSelect={onSelect} />
+  const renderSelectionPhase = () => <Selection question={question} answers={answers} onSelect={selectAnswer} />
+
+  const renderVote = () => <Vote question={question} candidates={answers} onSelect={onVote} />
 
   const renderWinner = () => <Winner winner={winner} questionType={question.type} nextRound={nextRound}/>
 
-  const renderPhase = () => {
+  const renderPhase = (phase) => {
     switch (phase) {
       case 'waiting':
         return renderWaitingRoom();
       case 'selectAnswer':
-        return renderSelectionPhase(selectAnswer);
+        return renderSelectionPhase();
       case 'intermission':
-        return <span>Hey</span>
+        return <span>Intermission</span>
       case 'vote':
-        return renderSelectionPhase(onVote);
+        return renderVote();
       case 'showWinner':
         return renderWinner();
       default:
@@ -71,7 +74,7 @@ const Board = () => {
 
   return (
     <div className="board">
-      {renderPhase()}
+      {renderPhase(phase)}
     </div>
   );
 }
