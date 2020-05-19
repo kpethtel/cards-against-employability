@@ -25,14 +25,14 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 
   playerCount++;
-  console.log('player count', playerCount)
+  console.log('player count', playerCount);
+  console.log(`Socket ${socket.id} connected.`);
 
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
+  socket.on('chat message', function(playerName, message){
+    io.emit('chat message', playerName, message);
   });
 
   socket.on('start round', function(){
-    console.log(`Socket ${socket.id} connected.`);
     dealQuestion();
   })
 
@@ -79,7 +79,7 @@ io.on('connection', function(socket){
 
   socket.on('disconnect',function(){
     playerCount--;
-    console.log('user disconnected');
+    console.log(`Socket ${socket.id} disconnected.`);
   });
 });
 
