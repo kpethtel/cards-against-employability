@@ -1,8 +1,8 @@
 import React from "react";
 
-const Winner = ({winner, questionType, nextRound}) => {
+const Winner = ({winners, questionType, nextRound}) => {
 
-  const renderWinner = () => {
+  const renderWinner = (winner) => {
     switch (questionType) {
       case 'q&a':
         return <span>{winner}</span>
@@ -16,7 +16,7 @@ const Winner = ({winner, questionType, nextRound}) => {
   return (
     <div className="winner">
       We have a winner
-      {renderWinner()}
+      {winners.map(winner => renderWinner(winner))}
       <button label="next" onClick={nextRound}>Next</button>
     </div>
   )

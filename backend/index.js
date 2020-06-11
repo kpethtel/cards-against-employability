@@ -10,11 +10,11 @@ const app = express();
 const server = http.createServer(app);
 export const io = ioClient(server);
 
-// it would be better to count open connections but there is/was a bug around that in socket.io
-// this approach is likely inadequate and will need to be improved
-var playerCount = 0;
-var selected_answers = [];
+const ROOM = 'game';
+var selectedAnswers = [];
 var votes = {};
+var players = {};
+var currentPhase = null;
 
 connectDb();
 
@@ -23,62 +23,75 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-
-  playerCount++;
-  console.log('player count', playerCount);
   console.log(`Socket ${socket.id} connected.`);
 
   socket.on('chat message', function(playerName, message){
-    io.emit('chat message', playerName, message);
+    io.sockets.in(ROOM).emit('chat message', playerName, message);
   });
 
   socket.on('start round', function(){
-    dealQuestion();
-  })
+    currentPhase = 'selecting answers';
+    // for (const player in players) {
+      // player.status = 'active';
+    // }
+    dealQuestion(question => io.in(ROOM).emit('deal question', currentPhase, question));
+  });
 
   socket.on('player enters', function(player){
-    io.emit('announce player entry', `${player} is seeking employment`);
+    socket.join(ROOM);
+    players[socket.id] = {name: player, status: 'inactive'};
+    console.log('players', players)
+    io.sockets.in(ROOM).emit('announce player entry', `${player} is seeking employment`);
   });
 
   socket.on('select answer', function(type, message){
-    selected_answers.push(message);
-    if (selected_answers.length === playerCount) {
-      io.emit('vote on selected', selected_answers);
-      selected_answers = [];
+    selectedAnswers.push(message);
+    const playerCount = Object.keys(players).length;
+    if (selectedAnswers.length === playerCount) {
+      currentPhase = 'vote';
+      io.sockets.in(ROOM).emit('vote on selected', currentPhase, selectedAnswers);
+      selectedAnswers = [];
     }
   });
 
   socket.on('cast vote', function(type, incomingVote){
     let vote;
-    if (type === 'gif') {
-      vote = incomingVote;
-    } else if (type === 'q&a') {
-      const answer = models.Answer.findById(mongoose.Types.ObjectId(incomingVote));
-      answer.then((doc) => {
-        vote = doc.text
-      }).catch((err) => {
-        console.log(err);
-      });
-    } else {
-      console.log('not implemented yet');
+    switch (type) {
+      case 'gif':
+        vote = incomingVote;
+        break;
+      case 'q&a':
+        const answer = models.Answer.findById(mongoose.Types.ObjectId(incomingVote));
+        answer.then((doc) => {
+          vote = doc.text
+        }).catch((err) => {
+          console.log(err);
+        });
+        break;
+      default:
+        console.log('not implemented yet');
+        break;
     }
 
-    console.log('votes: ', votes)
     votes[vote] ? votes[vote]++ : votes[vote] = 1
-    const voteTotal = Object.keys(votes).length
-    if (voteTotal != playerCount) return
-    // needs handling for ties
-    const maxVotes = Object.values(votes).reduce((a, b) => obj[a] > obj[b] ? a : b);
-    const winner = Object.keys(votes).reduce((acc, k)=> {
-      if (votes[k] === maxVotes) { acc.push(k) }
-      return acc
-    }, []);
-    io.emit('announce winner', winner);
+    console.log('votes: ', votes)
+
+    const voteTallies = Object.values(votes);
+    const voteCount = voteTallies.reduce((acc, value) => acc += value , 0);
+    const playerCount = Object.keys(players).length;
+    if (voteCount != playerCount) return
+
+    const maxVotes = Math.max(...voteTallies);
+    const winners = Object.keys(votes).filter(key => votes[key] === maxVotes);
+    currentPhase = 'show winners';
+    io.sockets.in(ROOM).emit('announce winners', currentPhase, winners);
     votes = {};
   })
 
-  socket.on('disconnect',function(){
-    playerCount--;
+  socket.on('disconnect', function(){
+    delete players[socket.id];
+    socket.leave(ROOM);
+    console.log('players', players)
     console.log(`Socket ${socket.id} disconnected.`);
   });
 });

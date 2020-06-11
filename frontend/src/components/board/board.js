@@ -10,25 +10,26 @@ import './board.css';
 const Board = () => {
   const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState([]);
-  const [winner, setWinner] = useState('');
+  const [candidates, setCandidates] = useState([]);
+  const [winners, setWinners] = useState([]);
   const [phase, setPhase] = useState('waiting');
   useEffect(() => {
-    socket.on('deal question', data => {
-      setQuestion(data[0]);
-      setPhase('activeRound');
-      setWinner('');
+    socket.on('deal question', (currentPhase, question) => {
+      setQuestion(question[0]);
+      setPhase(currentPhase);
+      setWinners('');
     });
     socket.on('deal answers', data => {
       setAnswers(data);
       setPhase('selectAnswer');
     });
-    socket.on('vote on selected', data => {
-      setAnswers(data);
-      setPhase('vote');
+    socket.on('vote on selected', (currentPhase, voteableAnswers) => {
+      setCandidates(voteableAnswers);
+      setPhase(currentPhase);
     });
-    socket.on('announce winner', data => {
-      setWinner(data);
-      setPhase('showWinner');
+    socket.on('announce winners', (currentPhase, winningSelection) => {
+      setWinners(winningSelection);
+      setPhase(currentPhase);
     });
   }, []);
 
@@ -36,14 +37,18 @@ const Board = () => {
     socket.emit('start round');
   }
 
-  const selectAnswer = (type, message) => {
-    setAnswers([]);
+  const selectAnswer = (type, selected) => {
+    if (type === 'q&a') {
+      const remainingAnswers = answers.filter(answer => answer !== selected);
+      setAnswers(remainingAnswers);
+    }
+
     setPhase('intermission');
-    socket.emit('select answer', type, message);
+    socket.emit('select answer', type, selected);
   }
 
   const onVote = (type, message) => {
-    setAnswers([]);
+    setCandidates([]);
     socket.emit('cast vote', type, message);
   }
 
@@ -51,22 +56,22 @@ const Board = () => {
 
   const renderSelectionPhase = () => <Selection question={question} answers={answers} onSelect={selectAnswer} />
 
-  const renderVote = () => <Vote question={question} candidates={answers} onSelect={onVote} />
+  const renderVote = () => <Vote question={question} candidates={candidates} onSelect={onVote} />
 
-  const renderWinner = () => <Winner winner={winner} questionType={question.type} nextRound={nextRound}/>
+  const renderWinners = () => <Winner winners={winners} questionType={question.type} nextRound={nextRound}/>
 
   const renderPhase = (phase) => {
     switch (phase) {
       case 'waiting':
         return renderWaitingRoom();
-      case 'selectAnswer':
+      case 'select answers':
         return renderSelectionPhase();
       case 'intermission':
         return <span>Intermission</span>
       case 'vote':
         return renderVote();
-      case 'showWinner':
-        return renderWinner();
+      case 'show winners':
+        return renderWinners();
       default:
         return renderSelectionPhase(); //this should never happen
     }
