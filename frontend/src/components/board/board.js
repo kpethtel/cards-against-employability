@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { socket } from "../../utils/socket/socket.js";
-import Winner from "../winner/winner.js";
-import WaitingRoom from '../phases/waiting_room/waiting_room.js';
-import Selection from '../phases/selection/selection.js'
-import Vote from '../phases/vote/vote.js'
+import Winners from "../winners/winners.js";
+import WaitingRoom from '../waiting_room/waiting_room.js';
+import SelectionPhase from '../selection_phase/selection_phase.js'
+import VotePhase from '../vote_phase/vote_phase.js'
 
 import './board.css';
 
@@ -54,11 +54,11 @@ const Board = () => {
 
   const renderWaitingRoom = () => <WaitingRoom nextRound={nextRound} />
 
-  const renderSelectionPhase = () => <Selection question={question} answers={answers} onSelect={selectAnswer} />
+  const renderSelectionPhase = () => <SelectionPhase question={question} answers={answers} onSelect={selectAnswer} />
 
-  const renderVote = () => <Vote question={question} candidates={candidates} onSelect={onVote} />
+  const renderVote = () => <VotePhase question={question} candidates={candidates} onSelect={onVote} />
 
-  const renderWinners = () => <Winner winners={winners} questionType={question.type} nextRound={nextRound}/>
+  const renderWinners = () => <Winners winners={winners} questionType={question.type} nextRound={nextRound}/>
 
   const renderPhase = (phase) => {
     switch (phase) {

@@ -1,9 +1,9 @@
 import React from "react";
-import Question from "../../question/question.js";
-import Answer from "../../answer/answer.js";
-import GifAnswersSection from "../../gif_answers_section/gif_answers_section.js";
+import Question from "../question/question.js";
+import Answer from "../answer/answer.js";
+import GifAnswersSection from "../gif_answers_section/gif_answers_section.js";
 
-const Selection = ({question, answers, onSelect}) => {
+const SelectionPhase = ({question, answers, onSelect}) => {
 
   const renderQuestion = () => {
     if (question.text) {
@@ -54,4 +54,4 @@ const Selection = ({question, answers, onSelect}) => {
   )
 }
 
-export default Selection;
+export default SelectionPhase;

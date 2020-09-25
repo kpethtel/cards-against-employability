@@ -1,5 +1,5 @@
 import React from "react";
-import Question from "../../question/question.js";
+import Question from "../question/question.js";
 
 const Vote = ({question, candidates, onSelect}) => {
   const renderQuestion = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Winner = ({winners, questionType, nextRound}) => {
+const Winners = ({winners, questionType, nextRound}) => {
 
   const renderWinner = (winner) => {
     switch (questionType) {
@@ -14,7 +14,7 @@ const Winner = ({winners, questionType, nextRound}) => {
   }
 
   return (
-    <div className="winner">
+    <div className="winners">
       We have a winner
       {winners.map(winner => renderWinner(winner))}
       <button label="next" onClick={nextRound}>Next</button>
@@ -22,4 +22,4 @@ const Winner = ({winners, questionType, nextRound}) => {
   )
 }
 
-export default Winner;
+export default Winners;
