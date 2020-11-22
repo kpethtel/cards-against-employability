@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getGif } from "../../actions/get_gif.js"
+import './gif_answers_section.css'
 
 const GifAnswersSection = ({onSelect}) => {
 
@@ -22,8 +23,16 @@ const GifAnswersSection = ({onSelect}) => {
     onSelect('gif', giphyURLs[imageIndex])
   }
 
+  const previous = () => {
+    setImageIndex(prevState =>
+      (prevState === 0) ? giphyURLs.length - 1 : prevState - 1
+    )
+  }
+
   const next = () => {
-    setImageIndex(prevState => (prevState + 1 === giphyURLs.length) ? 0 : prevState + 1);
+    setImageIndex(prevState =>
+      (prevState + 1 === giphyURLs.length) ? 0 : prevState + 1
+    );
   }
 
   const renderTextInput = () => {
@@ -47,8 +56,9 @@ const GifAnswersSection = ({onSelect}) => {
       <div className="imageSection" >
         <img src={giphyURLs[imageIndex]} alt="answer" />
         <div className="controls">
-          <button label="shuffle" onClick={next}>Shuffle</button>
+          <button label="previous" onClick={previous}>Previous</button>
           <button label="submit" onClick={handleFinalSubmission}>Submit</button>
+          <button label="next" onClick={next}>Next</button>
         </div>
       </div>
     )
