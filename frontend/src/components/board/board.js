@@ -54,11 +54,29 @@ const Board = () => {
 
   const renderWaitingRoom = () => <WaitingRoom nextRound={nextRound} />
 
-  const renderSelectionPhase = () => <SelectionPhase question={question} answers={answers} onSelect={selectAnswer} />
+  const renderSelectionPhase = () => {
+    return <SelectionPhase
+      question={question}
+      answers={answers}
+      onSelect={selectAnswer}
+    />
+  }
 
-  const renderVote = () => <VotePhase question={question} candidates={candidates} onSelect={onVote} />
+  const renderVote = () => {
+    return <VotePhase
+      question={question}
+      candidates={candidates}
+      onSelect={onVote}
+    />
+  }
 
-  const renderWinners = () => <Winners winners={winners} questionType={question.type} nextRound={nextRound}/>
+  const renderWinners = () => {
+    return <Winners
+      winners={winners}
+      questionType={question.type}
+      nextRound={nextRound}
+    />
+  }
 
   const renderPhase = (phase) => {
     switch (phase) {

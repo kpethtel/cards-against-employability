@@ -15,7 +15,11 @@ const Vote = ({question, candidates, onSelect}) => {
       <div className="candidates">
         {
           candidates.map(candidate => {
-            return <img src={candidate} alt="vote" onClick={() => onSelect('gif', candidate)}/>
+            return <img
+              src={candidate}
+              alt="vote"
+              onClick={() => onSelect('gif', candidate)}
+            />
           })
         }
       </div>
