@@ -42,7 +42,7 @@ class GameRoom {
           return
         });
       default:
-        console.log('not implemented yet');
+        console.log(`${voteType} not implemented`);
         return
     }
   }
@@ -60,10 +60,23 @@ class GameRoom {
     return voteCount === this.playerCount();
   }
 
-  calculateWinners(voteTallies) {
+  findWinners(voteTallies) {
     const maxVotes = Math.max(...voteTallies);
     const voteKeys = Object.keys(this.votes)
     return voteKeys.filter(key => this.votes[key] === maxVotes);
+  }
+
+  showWinners(voteTallies) {
+    const winners = this.findWinners(voteTallies);
+    this.currentPhase = 'show winners';
+    this.room.emit('announce winners', this.currentPhase, winners);
+    this.votes = {};
+  }
+
+  transitionToVoting() {
+    this.currentPhase = 'vote';
+    this.room.emit('vote on selected', this.currentPhase, this.selectedAnswers);
+    this.selectedAnswers = [];
   }
 
   addPlayerName = (socket, name) => {
@@ -73,26 +86,18 @@ class GameRoom {
     this.room.emit('announce player entry', `${name} is seeking employment`);
   }
 
-  // this should probably be refined. rules are too spread out
   startRound = () => {
     console.log('starting round');
-    this.currentPhase = 'selecting answers'
-      // for (const player in players) {
-        // player.status = 'active';
-      // }
+    this.currentPhase = 'selecting answers';
     dealQuestion(question => {
-      this.room.emit('deal question', this.currentPhase, question)
+      this.room.emit('deal question', this.currentPhase, question);
     });
   }
 
   addSelectedAnswer = (answer) => {
     this.selectedAnswers.push(answer);
-    console.log("answers: ", this.selectedAnswers)
-    console.log("player count: ", this.players)
     if (this.selectedAnswers.length === this.playerCount()) {
-      this.currentPhase = 'vote';
-      this.room.emit('vote on selected', this.currentPhase, this.selectedAnswers);
-      this.selectedAnswers = [];
+      this.transitionToVoting();
     }
   }
 
@@ -103,10 +108,7 @@ class GameRoom {
     const voteTallies = Object.values(this.votes);
     if (!this.allVotesReceived(voteTallies)) return;
 
-    const winners = this.calculateWinners(voteTallies);
-    this.currentPhase = 'show winners';
-    this.room.emit('announce winners', this.currentPhase, winners);
-    this.votes = {};
+    this.showWinners(voteTallies);
   }
 
   removePlayer = (socket) => {
