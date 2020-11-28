@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import models from '../models/index.js';
 import dealQuestion from './deal_question.js';
 import PlayerSocket from '../api/sockets/player_socket.js';
+import PhaseMachine from './phase_machine.js';
 
 class GameRoom {
 
@@ -12,7 +13,7 @@ class GameRoom {
     this.selectedAnswers = [];
     this.votes = {};
     this.players = {};
-    this.currentPhase = null;
+    this.currentPhase = new PhaseMachine();
     this.setterCallbacks = {
       addPlayerName: this.addPlayerName,
       addSelectedAnswer: this.addSelectedAnswer,
@@ -68,14 +69,14 @@ class GameRoom {
 
   showWinners(voteTallies) {
     const winners = this.findWinners(voteTallies);
-    this.currentPhase = 'show winners';
-    this.room.emit('announce winners', this.currentPhase, winners);
+    this.currentPhase.increment();
+    this.room.emit('announce winners', this.currentPhase.name(), winners);
     this.votes = {};
   }
 
   transitionToVoting() {
-    this.currentPhase = 'vote';
-    this.room.emit('vote on selected', this.currentPhase, this.selectedAnswers);
+    this.currentPhase.increment();
+    this.room.emit('vote on selected', this.currentPhase.name(), this.selectedAnswers);
     this.selectedAnswers = [];
   }
 
@@ -88,9 +89,9 @@ class GameRoom {
 
   startRound = () => {
     console.log('starting round');
-    this.currentPhase = 'selecting answers';
+    this.currentPhase.increment();
     dealQuestion(question => {
-      this.room.emit('deal question', this.currentPhase, question);
+      this.room.emit('deal question', this.currentPhase.name(), question);
     });
   }
 

@@ -82,13 +82,13 @@ const Board = () => {
     switch (phase) {
       case 'waiting':
         return renderWaitingRoom();
-      case 'select answers':
+      case 'selection':
         return renderSelectionPhase();
       case 'intermission':
         return <span>Intermission</span>
-      case 'vote':
+      case 'voting':
         return renderVote();
-      case 'show winners':
+      case 'results':
         return renderWinners();
       default:
         return renderSelectionPhase(); //this should never happen
