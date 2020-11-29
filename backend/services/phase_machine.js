@@ -12,13 +12,12 @@ class PhaseMachine {
     this.timer = null;
   }
 
+  start() {
+    this.active = true;
+    this.setTimer(this.currentPhase().after, this.time());
+  }
+
   increment() {
-    // this is a temporary measure for handling start of the game
-    if (!this.active) {
-      this.active = true;
-      this.setTimer(this.currentPhase().after, this.time());
-      return
-    }
     this.cancelTimer();
     this.currentIndex = (this.currentIndex + 1) % this.phaseCount;
     this.setTimer(this.currentPhase().after, this.time());

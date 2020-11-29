@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import models from '../models/index.js';
-import dealQuestion from './deal_question.js';
+import fetchQuestion from './fetch_question.js';
 import PlayerSocket from '../api/sockets/player_socket.js';
 import PhaseMachine from './phase_machine.js';
 
@@ -13,7 +13,7 @@ class GameRoom {
     this.selectedAnswers = [];
     this.votes = {};
     this.players = {};
-    this.currentPhase = new PhaseMachine(
+    this.phase = new PhaseMachine(
       this.startRound,
       this.startVoting,
       this.showResults
@@ -24,7 +24,7 @@ class GameRoom {
       processVote: this.processVote,
       removePlayer: this.removePlayer,
       sendChatMessage: this.sendChatMessage,
-      startRound: this.startRound,
+      startGame: this.startGame,
     }
   }
 
@@ -53,7 +53,7 @@ class GameRoom {
   }
 
   tallyVote(vote) {
-    return this.votes[vote] ? this.votes[vote]++ : this.votes[vote] = 1;
+    this.votes[vote] ? this.votes[vote]++ : this.votes[vote] = 1;
   }
 
   playerCount() {
@@ -72,18 +72,25 @@ class GameRoom {
     return voteKeys.filter(key => this.votes[key] === maxVotes);
   }
 
+  dealQuestion() {
+    fetchQuestion(question => {
+      console.log('DEALING QUESTIONS PHASE: ', this.phase.name())
+      this.room.emit('deal question', this.phase.name(), question);
+    });
+  }
+
   showResults = (voteTallies) => {
     console.log('SHOWING WINNERS')
     const winners = this.findWinners(voteTallies);
-    this.currentPhase.increment();
-    this.room.emit('announce winners', this.currentPhase.name(), winners);
+    this.phase.increment();
+    this.room.emit('announce winners', this.phase.name(), winners);
     this.votes = {};
   }
 
   startVoting = () => {
     console.log('START VOTING')
-    this.currentPhase.increment();
-    this.room.emit('vote on selected', this.currentPhase.name(), this.selectedAnswers);
+    this.phase.increment();
+    this.room.emit('vote on selected', this.phase.name(), this.selectedAnswers);
     this.selectedAnswers = [];
   }
 
@@ -96,10 +103,14 @@ class GameRoom {
 
   startRound = () => {
     console.log('START ROUND');
-    this.currentPhase.increment();
-    dealQuestion(question => {
-      this.room.emit('deal question', this.currentPhase.name(), question);
-    });
+    this.phase.increment();
+    this.dealQuestion();
+  }
+
+  startGame = () => {
+    console.log('START GAME');
+    this.phase.start();
+    this.dealQuestion();
   }
 
   addSelectedAnswer = (answer) => {

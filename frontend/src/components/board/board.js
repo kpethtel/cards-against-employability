@@ -17,7 +17,7 @@ const Board = () => {
     socket.on('deal question', (currentPhase, question) => {
       setQuestion(question[0]);
       setPhase(currentPhase);
-      setWinners('');
+      setWinners([]);
     });
     socket.on('deal answers', data => {
       setAnswers(data);
@@ -33,8 +33,8 @@ const Board = () => {
     });
   }, []);
 
-  const nextRound = () => {
-    socket.emit('start round');
+  const startGame = () => {
+    socket.emit('start game');
   }
 
   const selectAnswer = (type, selected) => {
@@ -52,7 +52,7 @@ const Board = () => {
     socket.emit('cast vote', type, message);
   }
 
-  const renderWaitingRoom = () => <WaitingRoom nextRound={nextRound} />
+  const renderWaitingRoom = () => <WaitingRoom startGame={startGame} />
 
   const renderSelectionPhase = () => {
     return <SelectionPhase
@@ -74,11 +74,10 @@ const Board = () => {
     return <Winners
       winners={winners}
       questionType={question.type}
-      nextRound={nextRound}
     />
   }
 
-  const renderPhase = (phase) => {
+  const renderPhase = () => {
     switch (phase) {
       case 'waiting':
         return renderWaitingRoom();
@@ -97,7 +96,7 @@ const Board = () => {
 
   return (
     <div className="board">
-      {renderPhase(phase)}
+      {renderPhase()}
     </div>
   );
 }

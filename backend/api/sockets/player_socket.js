@@ -9,7 +9,7 @@ class PlayerSocket {
   addListeners() {
     this.handleChatMessage();
     this.handleNewPlayer();
-    this.handleStartRound();
+    this.handleStartGame();
     this.handleAnswerSelection();
     this.handleIncomingVote();
   };
@@ -26,9 +26,10 @@ class PlayerSocket {
     });
   }
 
-  handleStartRound() {
-    this.socket.on('start round', () => {
-      this.game.startRound();
+  handleStartGame() {
+    this.socket.on('start game', () => {
+      console.log('RECEIVED START GAME')
+      this.game.startGame();
     });
   }
 
