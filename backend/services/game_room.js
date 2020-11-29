@@ -13,7 +13,11 @@ class GameRoom {
     this.selectedAnswers = [];
     this.votes = {};
     this.players = {};
-    this.currentPhase = new PhaseMachine();
+    this.currentPhase = new PhaseMachine(
+      this.startRound,
+      this.startVoting,
+      this.showResults
+    );
     this.setterCallbacks = {
       addPlayerName: this.addPlayerName,
       addSelectedAnswer: this.addSelectedAnswer,
@@ -62,19 +66,22 @@ class GameRoom {
   }
 
   findWinners(voteTallies) {
+    console.log('vote tallies', voteTallies)
     const maxVotes = Math.max(...voteTallies);
-    const voteKeys = Object.keys(this.votes)
+    const voteKeys = Object.keys(this.votes);
     return voteKeys.filter(key => this.votes[key] === maxVotes);
   }
 
-  showWinners(voteTallies) {
+  showResults = (voteTallies) => {
+    console.log('SHOWING WINNERS')
     const winners = this.findWinners(voteTallies);
     this.currentPhase.increment();
     this.room.emit('announce winners', this.currentPhase.name(), winners);
     this.votes = {};
   }
 
-  transitionToVoting() {
+  startVoting = () => {
+    console.log('START VOTING')
     this.currentPhase.increment();
     this.room.emit('vote on selected', this.currentPhase.name(), this.selectedAnswers);
     this.selectedAnswers = [];
@@ -88,7 +95,7 @@ class GameRoom {
   }
 
   startRound = () => {
-    console.log('starting round');
+    console.log('START ROUND');
     this.currentPhase.increment();
     dealQuestion(question => {
       this.room.emit('deal question', this.currentPhase.name(), question);
@@ -98,7 +105,7 @@ class GameRoom {
   addSelectedAnswer = (answer) => {
     this.selectedAnswers.push(answer);
     if (this.selectedAnswers.length === this.playerCount()) {
-      this.transitionToVoting();
+      this.startVoting();
     }
   }
 
@@ -109,7 +116,7 @@ class GameRoom {
     const voteTallies = Object.values(this.votes);
     if (!this.allVotesReceived(voteTallies)) return;
 
-    this.showWinners(voteTallies);
+    this.showResults(voteTallies);
   }
 
   removePlayer = (socket) => {
