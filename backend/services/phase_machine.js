@@ -35,9 +35,17 @@ class PhaseMachine {
     return this.currentPhase().time;
   }
 
+  timedOut() {
+    return !this.timer
+  }
+
   setTimer(after, timeout) {
     console.log('SET TIMER FOR ', this.name())
-    this.timer = setTimeout(after, timeout);
+    const afterAction = () => {
+      after()
+      this.cancelTimer()
+    }
+    this.timer = setTimeout(afterAction, timeout);
   }
 
   cancelTimer() {

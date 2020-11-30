@@ -60,14 +60,14 @@ class GameRoom {
     return Object.keys(this.players).length;
   }
 
-  allVotesReceived(voteTallies) {
-    const voteCount = voteTallies.reduce((acc, value) => acc += value , 0);
+  allVotesReceived() {
+    const voteCount = this.voteTallies().reduce((acc, value) => acc += value , 0);
     return voteCount === this.playerCount();
   }
 
-  findWinners(voteTallies) {
-    console.log('vote tallies', voteTallies)
-    const maxVotes = Math.max(...voteTallies);
+  findWinners() {
+    console.log('vote tallies', this.voteTallies())
+    const maxVotes = Math.max(...this.voteTallies());
     const voteKeys = Object.keys(this.votes);
     return voteKeys.filter(key => this.votes[key] === maxVotes);
   }
@@ -79,15 +79,23 @@ class GameRoom {
     });
   }
 
-  showResults = (voteTallies) => {
+  voteTallies() {
+    return Object.values(this.votes);
+  }
+
+  showResults = () => {
     console.log('SHOWING WINNERS')
-    const winners = this.findWinners(voteTallies);
+    if (this.voteTallies().length === 0) return
+
+    const winners = this.findWinners();
     this.phase.increment();
     this.room.emit('announce winners', this.phase.name(), winners);
     this.votes = {};
   }
 
   startVoting = () => {
+    if (this.selectedAnswers.length === 0) return
+
     console.log('START VOTING')
     this.phase.increment();
     this.room.emit('vote on selected', this.phase.name(), this.selectedAnswers);
@@ -115,7 +123,7 @@ class GameRoom {
 
   addSelectedAnswer = (answer) => {
     this.selectedAnswers.push(answer);
-    if (this.selectedAnswers.length === this.playerCount()) {
+    if (this.selectedAnswers.length === this.playerCount() || this.phase.timedOut()) {
       this.startVoting();
     }
   }
@@ -123,11 +131,7 @@ class GameRoom {
   processVote = (voteType, incomingVote) => {
     const vote = this.getVoteData(voteType, incomingVote);
     this.tallyVote(vote);
-
-    const voteTallies = Object.values(this.votes);
-    if (!this.allVotesReceived(voteTallies)) return;
-
-    this.showResults(voteTallies);
+    if (this.allVotesReceived() || this.phase.timedOut()) this.showResults();
   }
 
   removePlayer = (socket) => {
