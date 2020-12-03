@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import Question from "../question/question.js";
 
 const Vote = ({question, candidates, onSelect}) => {
@@ -33,6 +34,12 @@ const Vote = ({question, candidates, onSelect}) => {
       {renderCandidates()}
     </div>
   );
+}
+
+Vote.propTypes = {
+  question: PropTypes.string,
+  candidates: PropTypes.array,
+  onSelect: PropTypes.func,
 }
 
 export default Vote;

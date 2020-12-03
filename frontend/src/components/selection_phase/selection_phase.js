@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import Question from "../question/question.js";
 import Answer from "../answer/answer.js";
 import GifAnswersSection from "../gif_answers_section/gif_answers_section.js";
@@ -52,6 +53,12 @@ const SelectionPhase = ({question, answers, onSelect}) => {
       {renderAnswersSection()}
     </div>
   )
+}
+
+SelectionPhase.propTypes = {
+  question: PropTypes.string,
+  answers: PropTypes.array,
+  onSelect: PropTypes.func,
 }
 
 export default SelectionPhase;

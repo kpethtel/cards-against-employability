@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
 import { socket } from "../../utils/socket/socket.js";
 import './name_prompt.css'
 
@@ -31,6 +32,10 @@ const NamePrompt = ({ handleNameSetting }) => {
       </form>
     </div>
   );
+}
+
+NamePrompt.propTypes = {
+  handleNameSetting: PropTypes.func,
 }
 
 export default NamePrompt;

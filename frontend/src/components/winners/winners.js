@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 
 const Winners = ({winners, questionType}) => {
 
@@ -19,6 +20,11 @@ const Winners = ({winners, questionType}) => {
       {winners.map(winner => renderWinner(winner))}
     </div>
   )
+}
+
+Winners.propTypes = {
+  winners: PropTypes.array,
+  questionType: PropTypes.string,
 }
 
 export default Winners;

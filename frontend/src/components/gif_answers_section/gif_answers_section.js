@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
 import { getGif } from "../../actions/get_gif.js"
 import './gif_answers_section.css'
 
@@ -70,6 +71,10 @@ const GifAnswersSection = ({onSelect}) => {
       {renderImageSection()}
     </div>
   )
+}
+
+GifAnswersSection.propTypes = {
+  onSelect: PropTypes.func,
 }
 
 export default GifAnswersSection

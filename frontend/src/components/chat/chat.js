@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from 'prop-types';
 import { socket } from "../../utils/socket/socket.js";
 
 import './chat.css';
@@ -56,4 +57,7 @@ const Chat = ({playerName}) => {
   );
 }
 
+Chat.propTypes = {
+  name: PropTypes.string,
+}
 export default Chat;
