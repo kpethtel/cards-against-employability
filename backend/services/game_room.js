@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import models from '../models/index.js';
 import fetchQuestion from './fetch_question.js';
+import Player from '../models/player.js';
 import PlayerSocket from '../api/sockets/player_socket.js';
 import PhaseMachine from './phase_machine.js';
 
@@ -12,13 +13,13 @@ class GameRoom {
     this.room = this.io.sockets.in(this.roomName)
     this.selectedAnswers = [];
     this.votes = {};
-    this.players = {};
+    this.players = [];
     this.phase = new PhaseMachine(
       this.startRound,
       this.startVoting,
       this.showResults
     );
-    this.setterCallbacks = {
+    this.socketCallbacks = {
       addPlayerName: this.addPlayerName,
       addSelectedAnswer: this.addSelectedAnswer,
       processVote: this.processVote,
@@ -29,8 +30,9 @@ class GameRoom {
   }
 
   addPlayer(socket) {
-    const player = new PlayerSocket(socket, this.setterCallbacks);
-    this.players[player.socket.id] = {status: 'inactive'};
+    const playerSocket = new PlayerSocket(socket, this.socketCallbacks);
+    const player = new Player(playerSocket);
+    this.players.push(player);
   }
 
   getVoteData(voteType, incomingVote) {
@@ -57,7 +59,7 @@ class GameRoom {
   }
 
   playerCount() {
-    return Object.keys(this.players).length;
+    return this.players.length;
   }
 
   allVotesReceived() {
@@ -83,6 +85,10 @@ class GameRoom {
     return Object.values(this.votes);
   }
 
+  findPlayerBySocket(socket) {
+    return this.players.find(player => player.socket.id === socket.id);
+  }
+
   showResults = () => {
     console.log('SHOWING WINNERS')
     if (this.voteTallies().length === 0) return
@@ -103,8 +109,11 @@ class GameRoom {
   }
 
   addPlayerName = (socket, name) => {
+    // this should probably be done when the player enters the room
+    // once the 'active' functionality is in place
     socket.join(this.roomName);
-    this.players[socket.id]['name'] = name;
+    const player = this.findPlayerBySocket(socket);
+    player.name = name;
     console.log('players', this.players);
     this.room.emit('announce player entry', `${name} is seeking employment`);
   }
@@ -135,8 +144,10 @@ class GameRoom {
   }
 
   removePlayer = (socket) => {
-    delete this.players[socket.id];
-    this.socket.leave(this.roomName);
+    const exitingPlayer = this.findPlayerBySocket(socket);
+    this.players = this.players.filter(player => player !== exitingPlayer)
+    delete exitingPlayer
+    socket.leave(this.roomName);
     console.log('players', this.players);
   }
 
