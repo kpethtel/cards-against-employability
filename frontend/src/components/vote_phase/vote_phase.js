@@ -17,9 +17,9 @@ const Vote = ({question, candidates, onSelect}) => {
         {
           candidates.map(candidate => {
             return <img
-              src={candidate}
+              src={candidate.answer}
               alt="vote"
-              onClick={() => onSelect('gif', candidate)}
+              onClick={() => onSelect('gif', candidate.id)}
             />
           })
         }

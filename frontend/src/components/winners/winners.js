@@ -8,7 +8,12 @@ const Winners = ({winners, questionType}) => {
       case 'q&a':
         return <span>{winner}</span>
       case 'gif':
-        return <img src={winner} alt="winner" />
+        return (
+          <figure>
+            <img src={winner.answer} alt="winner" />
+            <figcaption>{winner.userName}</figcaption>
+          </figure>
+        )
       default:
         break;
     }

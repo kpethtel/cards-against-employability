@@ -12,7 +12,6 @@ class GameRoom {
     this.roomName = 'game';
     this.room = this.io.sockets.in(this.roomName)
     this.selectedAnswers = [];
-    this.votes = {};
     this.players = [];
     this.phase = new PhaseMachine(
       this.startRound,
@@ -35,43 +34,25 @@ class GameRoom {
     this.players.push(player);
   }
 
-  getVoteData(voteType, incomingVote) {
-    switch (voteType) {
-      case 'gif':
-        return incomingVote;
-      case 'q&a':
-        const voteId = mongoose.Types.ObjectId(incomingVote)
-        const answer = models.Answer.findById(voteId);
-        answer.then((doc) => {
-          return doc.text
-        }).catch((err) => {
-          console.log(err);
-          return
-        });
-      default:
-        console.log(`${voteType} not implemented`);
-        return
-    }
-  }
-
-  tallyVote(vote) {
-    this.votes[vote] ? this.votes[vote]++ : this.votes[vote] = 1;
-  }
-
   playerCount() {
     return this.players.length;
   }
 
+  // could be replaced with a counter
+  voteCount() {
+    return this.selectedAnswers.reduce((acc, answer) => acc += answer.votes, 0);
+  }
+
   allVotesReceived() {
-    const voteCount = this.voteTallies().reduce((acc, value) => acc += value , 0);
-    return voteCount === this.playerCount();
+    return this.voteCount() === this.playerCount();
   }
 
   findWinners() {
-    console.log('vote tallies', this.voteTallies())
-    const maxVotes = Math.max(...this.voteTallies());
-    const voteKeys = Object.keys(this.votes);
-    return voteKeys.filter(key => this.votes[key] === maxVotes);
+    let mostVotes = 0;
+    this.selectedAnswers.forEach(answer => {
+      if (answer.votes > mostVotes) mostVotes = answer.votes;
+    });
+    return this.selectedAnswers.filter(answer => answer.votes === mostVotes);
   }
 
   dealQuestion() {
@@ -81,22 +62,26 @@ class GameRoom {
     });
   }
 
-  voteTallies() {
-    return Object.values(this.votes);
+  findPlayerBySocketId(socketId) {
+    return this.players.find(player => player.socket.id === socketId);
   }
 
-  findPlayerBySocket(socket) {
-    return this.players.find(player => player.socket.id === socket.id);
+  findAnswerById(id) {
+    return this.selectedAnswers.find(answer => answer.id === id)
   }
 
   showResults = () => {
     console.log('SHOWING WINNERS')
-    if (this.voteTallies().length === 0) return
+    if (this.voteCount === 0) return
 
     const winners = this.findWinners();
     this.phase.increment();
+    winners.forEach(winner => {
+      const player = this.findPlayerBySocketId(winner.id);
+      winner['userName'] = player.name;
+    });
     this.room.emit('announce winners', this.phase.name(), winners);
-    this.votes = {};
+    this.selectedAnswers = [];
   }
 
   startVoting = () => {
@@ -105,14 +90,13 @@ class GameRoom {
     console.log('START VOTING')
     this.phase.increment();
     this.room.emit('vote on selected', this.phase.name(), this.selectedAnswers);
-    this.selectedAnswers = [];
   }
 
   addPlayerName = (socket, name) => {
     // this should probably be done when the player enters the room
     // once the 'active' functionality is in place
     socket.join(this.roomName);
-    const player = this.findPlayerBySocket(socket);
+    const player = this.findPlayerBySocketId(socket.id);
     player.name = name;
     console.log('players', this.players);
     this.room.emit('announce player entry', `${name} is seeking employment`);
@@ -130,23 +114,22 @@ class GameRoom {
     this.dealQuestion();
   }
 
-  addSelectedAnswer = (answer) => {
-    this.selectedAnswers.push(answer);
+  addSelectedAnswer = (socketId, answer) => {
+    this.selectedAnswers.push({id: socketId, answer: answer, votes: 0});
     if (this.selectedAnswers.length === this.playerCount() || this.phase.timedOut()) {
       this.startVoting();
     }
   }
 
-  processVote = (voteType, incomingVote) => {
-    const vote = this.getVoteData(voteType, incomingVote);
-    this.tallyVote(vote);
+  processVote = (answerId) => {
+    const answer = this.findAnswerById(answerId);
+    answer.votes++;
     if (this.allVotesReceived() || this.phase.timedOut()) this.showResults();
   }
 
   removePlayer = (socket) => {
-    const exitingPlayer = this.findPlayerBySocket(socket);
+    const exitingPlayer = this.findPlayerBySocketId(socket.id);
     this.players = this.players.filter(player => player !== exitingPlayer)
-    delete exitingPlayer
     socket.leave(this.roomName);
     console.log('players', this.players);
   }

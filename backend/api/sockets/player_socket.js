@@ -28,20 +28,19 @@ class PlayerSocket {
 
   handleStartGame() {
     this.socket.on('start game', () => {
-      console.log('RECEIVED START GAME')
       this.game.startGame();
     });
   }
 
   handleAnswerSelection() {
     this.socket.on('select answer', (type, message) => {
-      this.game.addSelectedAnswer(message);
+      this.game.addSelectedAnswer(this.socket.id, message);
     });
   }
 
   handleIncomingVote() {
-    this.socket.on('cast vote', (voteType, incomingVote) => {
-      this.game.processVote(voteType, incomingVote)
+    this.socket.on('cast vote', (voteType, incomingVoteId) => {
+      this.game.processVote(incomingVoteId)
     })
   }
 

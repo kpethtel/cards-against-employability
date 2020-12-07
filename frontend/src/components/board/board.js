@@ -47,9 +47,9 @@ const Board = () => {
     socket.emit('select answer', type, selected);
   }
 
-  const onVote = (type, message) => {
+  const onVote = (type, candidateId) => {
     setCandidates([]);
-    socket.emit('cast vote', type, message);
+    socket.emit('cast vote', type, candidateId);
   }
 
   const renderWaitingRoom = () => <WaitingRoom startGame={startGame} />
