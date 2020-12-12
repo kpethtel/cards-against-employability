@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'http';
 import ioClient from 'socket.io';
+import cors from 'cors';
 import connectDb from './config/connect_db.js';
 import GameRoom from './services/game_room.js';
 
@@ -10,10 +11,22 @@ const io = ioClient(server);
 
 connectDb();
 
-const gameRoom = new GameRoom(io);
+const corsOptions = {
+  origin: 'http://localhost:3000'
+}
+app.use(cors(corsOptions));
+app.use(express.json());
+
+const games = []
 
 app.get('/', function(req, res){
   res.send({ response: 'Server running' }).status(200);
+});
+
+app.post('/games/new', (req, res) => {
+  const game = new GameRoom(req.body.name, io);
+  games.push(game);
+  res.send({ response: 'ok' }).status(201);
 });
 
 io.on('connection', function(socket){

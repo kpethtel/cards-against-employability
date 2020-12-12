@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import './index.css';
 import App from './components/app/App';
+import NewGame from './components/new_game/new_game';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
       <Route exact={true} path="/" component={App} />
+      <Route path="/games/new" component={NewGame} />
     </Router>
   </React.StrictMode>,
   document.getElementById('root')
