@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Chat from "../chat/chat.js"
-import Board from "../board/board.js"
-import NamePrompt from "../name_prompt/name_prompt.js"
+import Chat from "../chat/chat.js";
+import Board from "../board/board.js";
+import TextForm from "../text_form/text_form.js";
 import './App.css';
 
 const App = () => {
@@ -15,7 +15,8 @@ const App = () => {
   const needsName = playerName === "";
 
   const renderNamePrompt = () => {
-    return <NamePrompt handleNameSetting={handleNameSetting} />
+    const prompt = 'Give yourself a name'
+    return <TextForm prompt={prompt} callback={handleNameSetting} />
   };
 
   const renderBoard = () => {
