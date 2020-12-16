@@ -1,5 +1,3 @@
-import mongoose from 'mongoose';
-import models from '../models/index.js';
 import fetchQuestion from './fetch_question.js';
 import Player from '../models/player.js';
 import PlayerSocket from '../api/sockets/player_socket.js';
@@ -7,7 +5,8 @@ import PhaseMachine from './phase_machine.js';
 
 class GameRoom {
 
-  constructor(io) {
+  constructor(name, io) {
+    this.name = name;
     this.io = io;
     this.roomName = 'game';
     this.room = this.io.sockets.in(this.roomName)

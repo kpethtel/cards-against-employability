@@ -19,6 +19,10 @@ app.use(express.json());
 
 const games = []
 
+function findGame(name) {
+  return games.find(game => game.name === name);
+}
+
 app.get('/', function(req, res){
   res.send({ response: 'Server running' }).status(200);
 });
@@ -30,6 +34,8 @@ app.post('/games/new', (req, res) => {
 });
 
 io.on('connection', function(socket){
+  let gameName = socket.handshake.query['gameName']
+  const gameRoom = findGame(gameName);
   console.log(`Socket ${socket.id} connected.`);
   gameRoom.addPlayer(socket);
 });

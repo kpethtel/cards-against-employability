@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { socket } from "../../utils/socket/socket.js";
+import PropTypes from 'prop-types';
 import Winners from "../winners/winners.js";
 import WaitingRoom from '../waiting_room/waiting_room.js';
 import SelectionPhase from '../selection_phase/selection_phase.js'
@@ -7,7 +7,7 @@ import VotePhase from '../vote_phase/vote_phase.js'
 
 import './board.css';
 
-const Board = () => {
+const Board = ({socket}) => {
   const [question, setQuestion] = useState('');
   const [answers, setAnswers] = useState([]);
   const [candidates, setCandidates] = useState([]);
@@ -99,6 +99,10 @@ const Board = () => {
       {renderPhase()}
     </div>
   );
+}
+
+Board.propTypes = {
+  socket: PropTypes.object,
 }
 
 export default Board;
