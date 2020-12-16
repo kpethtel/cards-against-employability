@@ -8,6 +8,7 @@ const TextForm = ({ prompt, callback }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     callback(text);
+    setText("");
   }
 
   const handleChange = (event) => {
