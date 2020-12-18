@@ -57,7 +57,7 @@ class GameRoom {
   dealQuestion() {
     fetchQuestion(question => {
       console.log('DEALING QUESTIONS PHASE: ', this.phase.name())
-      this.room.emit('deal question', this.phase.name(), question);
+      this.room.emit('deal question', this.phase.name(), this.phase.time(), question);
     });
   }
 
@@ -88,7 +88,7 @@ class GameRoom {
 
     console.log('START VOTING')
     this.phase.increment();
-    this.room.emit('vote on selected', this.phase.name(), this.selectedAnswers);
+    this.room.emit('vote on selected', this.phase.name(), this.phase.time(), this.selectedAnswers);
   }
 
   addPlayerName = (socket, name) => {
