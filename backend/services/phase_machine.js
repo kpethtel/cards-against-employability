@@ -42,8 +42,8 @@ class PhaseMachine {
   setTimer(after, timeout) {
     console.log('SET TIMER FOR ', this.name())
     const afterAction = () => {
-      after()
       this.cancelTimer()
+      after()
     }
     this.timer = setTimeout(afterAction, timeout);
   }
