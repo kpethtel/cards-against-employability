@@ -2,37 +2,36 @@ import React, { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 
 const OneSecond = 1000;
+const VisibilityThreshold = 5000;
 
-const Timer = ({limit}) => {
+const Timer = ({limit, timerFor}) => {
 
   const [timeLimit, setTimeLimit] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [id, setId] = useState(null);
 
   useEffect(() => {
-    if (limit && limit !== timeLimit) {
-      setTimeLimit(limit);
-      startTimer(limit);
+    setId(timerFor);
+    setTimeLimit(limit);
+    setTimeLeft(limit);
+  }, [id]);
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      waitOneSecond();
     }
-  });
+  }, [timeLeft]);
 
-  const startTimer = (timeLeft) => {
-    if (timeLeft < OneSecond) return
-    const timeRemaining = timeLeft - OneSecond
-    setTimeLeft(timeRemaining);
-    setTimeout(() => startTimer(timeRemaining), OneSecond);
+  const waitOneSecond = () => {
+    const remaining = timeLeft - OneSecond
+    setTimeout(() => setTimeLeft(remaining), OneSecond);
   }
 
-  const secondsRemaining = () => {
-    return timeLeft / OneSecond
-  }
+  const secondsRemaining = () => timeLeft / OneSecond
 
-  const visible = () => {
-    return timeLimit && secondsRemaining() < 5
-  }
+  const visible = () => timeLimit && timeLeft <= VisibilityThreshold
 
-  const renderClock = () => {
-    return <span>Time remaining: {secondsRemaining()}</span>
-  }
+  const renderClock = () => <span>Time remaining: {secondsRemaining()}</span>
 
   return (
     visible() ? renderClock() : null
@@ -41,6 +40,7 @@ const Timer = ({limit}) => {
 
 Timer.propTypes = {
   limit: PropTypes.number,
+  timerFor: PropTypes.string,
 }
 
 export default Timer;

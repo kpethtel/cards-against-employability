@@ -35,8 +35,9 @@ const Board = ({socket}) => {
     socket.on('announce winners', (currentPhase, winningSelection) => {
       setWinners(winningSelection);
       setPhase(currentPhase);
+      setTimeLimit(null);
     });
-  }, []);
+  });
 
   const startGame = () => {
     socket.emit('start game');
@@ -54,6 +55,7 @@ const Board = ({socket}) => {
 
   const onVote = (type, candidateId) => {
     setCandidates([]);
+    setPhase('intermission');
     socket.emit('cast vote', type, candidateId);
   }
 
@@ -100,13 +102,13 @@ const Board = ({socket}) => {
   }
 
   const renderClock = () => {
-    return <Timer limit={timeLimit} />
+    return (timeLimit && phase !== 'intermission') ? <Timer limit={timeLimit} /> : null
   }
 
   return (
     <div className="board">
-      {renderClock()}
       {renderPhase()}
+      {renderClock()}
     </div>
   );
 }
