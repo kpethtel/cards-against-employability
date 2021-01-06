@@ -12,6 +12,7 @@ class PlayerSocket {
     this.handleStartGame();
     this.handleAnswerSelection();
     this.handleIncomingVote();
+    this.handlePlayerDisconnect();
   };
 
   handleChatMessage() {
@@ -46,7 +47,7 @@ class PlayerSocket {
 
   handlePlayerDisconnect() {
     this.socket.on('disconnect', () => {
-      this.game.removeplayer(this.socket);
+      this.game.removePlayer(this.socket);
       console.log(`Socket ${this.socket.id} disconnected.`);
     });
   }
