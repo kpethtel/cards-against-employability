@@ -1,7 +1,11 @@
-import models from '../models/index.js';
+import Question from '../models/question.js';
 
-function fetchQuestion(excluded) {
-  return models.Question.findById({$nin: excluded}).populate('questions')
+async function fetchQuestion(excluded) {
+  const questions = await Question.aggregate([
+    { $match: { _id: { $nin: excluded }}},
+    { $sample: { size: 1 }},
+  ]);
+  return questions[0];
 }
 
 export default fetchQuestion;
