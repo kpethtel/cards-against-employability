@@ -55,12 +55,18 @@ class GameRoom {
     return this.selectedAnswers.filter(answer => answer.votes === mostVotes);
   }
 
-  dealQuestion() {
-    fetchQuestion(this.seenQuestions, question => {
-      console.log('DEALING QUESTIONS PHASE: ', this.phase.name())
+  async dealQuestion() {
+    let question = await fetchQuestion(this.seenQuestions);
+    if (!question) {
+      this.seenQuestions = [];
+      question = await fetchQuestion(this.seenQuestions);
+    }
+    if (question) {
       this.seenQuestions.push(question._id);
       this.room.emit('deal question', this.phase.name(), this.phase.time(), question);
-    });
+    } else {
+      console.log('ERROR: no question received')
+    }
   }
 
   findPlayerBySocketId(socketId) {
