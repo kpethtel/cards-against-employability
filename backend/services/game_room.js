@@ -12,6 +12,7 @@ class GameRoom {
     this.room = this.io.sockets.in(this.roomName)
     this.selectedAnswers = [];
     this.players = [];
+    this.seenQuestions = [];
     this.phase = new PhaseMachine(
       this.startRound,
       this.startVoting,
@@ -55,8 +56,9 @@ class GameRoom {
   }
 
   dealQuestion() {
-    fetchQuestion(question => {
+    fetchQuestion(this.seenQuestions, question => {
       console.log('DEALING QUESTIONS PHASE: ', this.phase.name())
+      this.seenQuestions.push(question._id);
       this.room.emit('deal question', this.phase.name(), this.phase.time(), question);
     });
   }

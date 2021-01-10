@@ -18,7 +18,8 @@ const Board = ({socket}) => {
 
   useEffect(() => {
     socket.on('deal question', (currentPhase, time, question) => {
-      setQuestion(question[0]);
+      console.log('QUESTION', question)
+      setQuestion(question);
       setPhase(currentPhase);
       setTimeLimit(time);
       setWinners([]);
