@@ -17,7 +17,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-const games = []
+// adding default game for ease of development, should be removed later
+const games = [new GameRoom('default', io)];
 
 function findGame(name) {
   return games.find(game => game.name === name);
