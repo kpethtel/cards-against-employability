@@ -5,6 +5,7 @@ async function fetchQuestion(excluded) {
     { $match: { _id: { $nin: excluded }}},
     { $sample: { size: 1 }},
   ]);
+  if (!questions) return
   return questions[0];
 }
 
