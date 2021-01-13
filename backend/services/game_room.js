@@ -10,14 +10,6 @@ class GameRoom {
     this.io = io;
     this.roomName = 'game';
     this.room = this.io.sockets.in(this.roomName)
-    this.selectedAnswers = [];
-    this.players = [];
-    this.seenQuestions = [];
-    this.phase = new PhaseMachine(
-      this.startRound,
-      this.startVoting,
-      this.showResults
-    );
     this.socketCallbacks = {
       addPlayerName: this.addPlayerName,
       addSelectedAnswer: this.addSelectedAnswer,
@@ -26,6 +18,18 @@ class GameRoom {
       sendChatMessage: this.sendChatMessage,
       startGame: this.startGame,
     }
+    this.initializeGameData();
+  }
+
+  initializeGameData() {
+    this.selectedAnswers = [];
+    this.players = [];
+    this.seenQuestions = [];
+    this.phase = new PhaseMachine(
+      this.startRound,
+      this.startVoting,
+      this.showResults
+    );
   }
 
   addPlayer(socket) {
@@ -137,6 +141,10 @@ class GameRoom {
   removePlayer = (socket) => {
     const exitingPlayer = this.findPlayerBySocketId(socket.id);
     this.players = this.players.filter(player => player !== exitingPlayer)
+    if (this.players.length === 0) {
+      this.phase.cancelTimer();
+      this.initializeGameData();
+    }
     socket.leave(this.roomName);
     console.log('players', this.players);
   }

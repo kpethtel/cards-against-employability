@@ -1,5 +1,7 @@
 class PhaseMachine {
 
+  PHASE_COUNT = 3;
+
   constructor(startSelection, startVote, showResults) {
     this.phases = [
       { name: 'selection', time: 15000, after: startVote },
@@ -7,7 +9,6 @@ class PhaseMachine {
       { name: 'results', time: 5000, after: startSelection },
     ];
     this.currentIndex = 0;
-    this.phaseCount = 3;
     this.active = false;
     this.timer = null;
   }
@@ -19,7 +20,7 @@ class PhaseMachine {
 
   increment() {
     this.cancelTimer();
-    this.currentIndex = (this.currentIndex + 1) % this.phaseCount;
+    this.currentIndex = (this.currentIndex + 1) % this.PHASE_COUNT;
     this.setTimer(this.currentPhase().after, this.time());
   }
 
@@ -42,8 +43,8 @@ class PhaseMachine {
   setTimer(after, timeout) {
     console.log('SET TIMER FOR ', this.name())
     const afterAction = () => {
-      this.cancelTimer()
-      after()
+      this.cancelTimer();
+      after();
     }
     this.timer = setTimeout(afterAction, timeout);
   }
