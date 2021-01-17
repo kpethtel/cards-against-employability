@@ -15,3 +15,7 @@
 .board {
   width: 100%;
 }
+
+.error {
+  color: red;
+}

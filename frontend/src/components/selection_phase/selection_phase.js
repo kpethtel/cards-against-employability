@@ -7,11 +7,7 @@ import GifAnswersSection from "../gif_answers_section/gif_answers_section.js";
 const SelectionPhase = ({question, answers, onSelect}) => {
 
   const renderQuestion = () => {
-    if (question.text) {
-      return <Question
-        text={question.text}
-      />
-    }
+    if (question.text) return <Question text={question.text} />
   }
 
   const renderAnswersSection = () => {

@@ -8,11 +8,21 @@ const GifAnswersSection = ({onSelect}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [giphyURLs, setGiphyURLs] = useState([]);
   const [imageIndex, setImageIndex] = useState(0);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     setImageIndex(0);
-    getGif(searchTerm, setGiphyURLs);
+    getGif(searchTerm, handleGiphyResponse);
+  }
+
+  const handleGiphyResponse = (urls) => {
+    setGiphyURLs(urls);
+    if (urls.length === 0) {
+      setErrorMessage(`No gifs available for ${searchTerm}. Try again.`);
+    } else {
+      setErrorMessage(null);
+    }
   }
 
   const handleChange = (event) => {
@@ -52,7 +62,7 @@ const GifAnswersSection = ({onSelect}) => {
   }
 
   const renderImageSection = () => {
-    if (giphyURLs.length === 0) { return null }
+    if (giphyURLs.length === 0) return
     return (
       <div className="imageSection" >
         <img src={giphyURLs[imageIndex]} alt="answer" />
@@ -65,10 +75,20 @@ const GifAnswersSection = ({onSelect}) => {
     )
   }
 
+  const renderErrorMessage = () => {
+    if (errorMessage === null) return
+    return (
+      <div className='error'>
+        <span>{errorMessage}</span>
+      </div>
+    )
+  }
+
   return (
     <div className="gifAnswersSection" >
       {renderTextInput()}
       {renderImageSection()}
+      {renderErrorMessage()}
     </div>
   )
 }
