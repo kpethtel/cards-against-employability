@@ -35,10 +35,16 @@ app.post('/games/new', (req, res) => {
 });
 
 io.on('connection', function(socket){
-  let gameName = socket.handshake.query['gameName']
-  const gameRoom = findGame(gameName);
   console.log(`Socket ${socket.id} connected.`);
-  gameRoom.addPlayer(socket);
+  socket.on('join game', (gameName, callback) => {
+    const gameRoom = findGame(gameName);
+    if (gameRoom) {
+      callback({status: 'success'});
+      gameRoom.addPlayer(socket);
+    } else {
+      callback({status: 'error'});
+    }
+  });
 });
 
 server.listen(3001, function(){

@@ -5,25 +5,31 @@ import TextForm from "../text_form/text_form.js";
 import { socket } from "../../utils/socket/socket.js";
 import './App.css';
 
-const App = () => {
+const Socket = socket();
 
-  const [playerSocket, setPlayerSocket] = useState(null);
+const App = () => {
   const [playerName, setPlayerName] = useState("");
+  const [gameEntry, setGameEntry] = useState({});
 
   const handleGameSetting = (gameName) => {
-    const newSocket = socket(gameName);
-    setPlayerSocket(newSocket);
+    Socket.emit('join game', gameName, (response) => {
+      setGameEntry(response);
+    });
   }
 
   const handleNameSetting = (name) => {
     setPlayerName(name);
-    playerSocket.emit('player enters', name);
+    Socket.emit('player enters', name);
   }
 
-  const needsName = playerName === "";
+  const needsGameName = gameEntry.status !== 'success'
+
+  const gameEntryError = gameEntry.status === 'error'
+
+  const needsName = playerName === '';
 
   const renderCurrentBoardState = () => {
-    if (playerSocket === null) {
+    if (needsGameName) {
       return renderGameNamePrompt();
     } else if (needsName) {
       return renderNamePrompt();
@@ -38,8 +44,15 @@ const App = () => {
   }
 
   const renderGameNamePrompt = () => {
-    const prompt = 'Which game are you joining?'
-    return <TextForm prompt={prompt} callback={handleGameSetting} />
+    const prompt = 'Which game are you joining?';
+    return (
+      <div>
+        <TextForm prompt={prompt} callback={handleGameSetting} />
+        {
+          gameEntryError ? (<div className='error'><p>Invalid. Try again.</p></div>) : null
+        }
+      </div>
+    )
   }
 
   const renderNamePrompt = () => {
@@ -48,11 +61,11 @@ const App = () => {
   };
 
   const renderBoard = () => {
-    return <Board socket={playerSocket} />
+    return <Board socket={Socket} />
   }
 
   const renderChat = () => {
-    return <Chat socket={playerSocket} playerName={playerName} />
+    return <Chat socket={Socket} playerName={playerName} />
   }
 
   return (
