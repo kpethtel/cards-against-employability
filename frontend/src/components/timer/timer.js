@@ -8,24 +8,18 @@ const Timer = ({limit, timerFor}) => {
 
   const [timeLimit, setTimeLimit] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
-  const [id, setId] = useState(null);
 
   useEffect(() => {
-    setId(timerFor);
     setTimeLimit(limit);
     setTimeLeft(limit);
-  }, [id]);
+  }, [limit, timerFor]);
 
   useEffect(() => {
     if (timeLeft > 0) {
-      waitOneSecond();
+      const remaining = timeLeft - OneSecond
+      setTimeout(() => setTimeLeft(remaining), OneSecond);
     }
   }, [timeLeft]);
-
-  const waitOneSecond = () => {
-    const remaining = timeLeft - OneSecond
-    setTimeout(() => setTimeLeft(remaining), OneSecond);
-  }
 
   const secondsRemaining = () => timeLeft / OneSecond
 

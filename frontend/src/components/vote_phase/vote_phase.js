@@ -37,7 +37,7 @@ const Vote = ({question, candidates, onSelect}) => {
 }
 
 Vote.propTypes = {
-  question: PropTypes.string,
+  question: PropTypes.object,
   candidates: PropTypes.array,
   onSelect: PropTypes.func,
 }

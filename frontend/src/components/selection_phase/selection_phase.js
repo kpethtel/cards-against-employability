@@ -52,7 +52,7 @@ const SelectionPhase = ({question, answers, onSelect}) => {
 }
 
 SelectionPhase.propTypes = {
-  question: PropTypes.string,
+  question: PropTypes.object,
   answers: PropTypes.array,
   onSelect: PropTypes.func,
 }

@@ -7,10 +7,11 @@ const Chat = ({socket, playerName}) => {
 
   const [message, setMessage] = useState("");
   const [chatLog, setChatLog] = useState([]);
+
   useEffect(() => {
     socket.on('chat message', (playerName, msg) => addToChatMessages([playerName, msg]));
     socket.on('announce player entry', msg => addToChatMessages([msg]));
-  }, []);
+  }, [socket]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -28,11 +29,13 @@ const Chat = ({socket, playerName}) => {
   }
 
   const renderChatMessages = () => {
+    let counter = 0;
     return chatLog.map(line => {
+      counter = ++counter;
       if (line.length === 1) {
-        return <li>{line[0]}</li>
+        return <li key={counter}>{line[0]}</li>
       } else {
-        return <li><b>{`${line[0]}: `}</b>{line[1]}</li>
+        return <li key={counter}><b>{`${line[0]}: `}</b>{line[1]}</li>
       }
     })
   }
