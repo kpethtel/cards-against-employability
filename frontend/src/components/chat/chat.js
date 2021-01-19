@@ -3,41 +3,47 @@ import PropTypes from 'prop-types';
 
 import './chat.css';
 
+let counter = 0;
+
 const Chat = ({socket, playerName}) => {
 
-  const [message, setMessage] = useState("");
-  const [chatLog, setChatLog] = useState([]);
+  const [inputText, setInputText] = useState("");
+  const [chatLog, setChatLog] = useState({});
 
   useEffect(() => {
-    socket.on('chat message', (playerName, msg) => addToChatMessages([playerName, msg]));
-    socket.on('announce player entry', msg => addToChatMessages([msg]));
+    const addToChatMessages = (newMessage) => {
+      setChatLog(prevState => {
+        counter = ++counter;
+        let incomingMessage = {};
+        incomingMessage[counter] = newMessage;
+        return {...prevState, ...incomingMessage}
+      });
+    }
+    socket.on('chat message', (playerName, msg) => addToChatMessages({name: playerName, message: msg}));
+    socket.on('announce player entry', msg => addToChatMessages({message: msg}));
   }, [socket]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    socket.emit('chat message', playerName, message)
-    setMessage("");
+    socket.emit('chat message', playerName, inputText)
+    setInputText("");
   }
 
   const handleChange = (event) => {
     var text = event.target.value;
-    setMessage(text);
-  }
-
-  const addToChatMessages = (newMessage) => {
-    setChatLog(prevState => [...prevState, newMessage]);
+    setInputText(text);
   }
 
   const renderChatMessages = () => {
-    let counter = 0;
-    return chatLog.map(line => {
-      counter = ++counter;
-      if (line.length === 1) {
-        return <li key={counter}>{line[0]}</li>
+    const items = [];
+    for (const [key, value] of Object.entries(chatLog)) {
+      if (value.name) {
+        items.push(<li key={key}><b>{`${value.name}: `}</b>{value.message}</li>);
       } else {
-        return <li key={counter}><b>{`${line[0]}: `}</b>{line[1]}</li>
+        items.push(<li key={key}>{value.message}</li>);
       }
-    })
+    }
+    return items;
   }
 
   return (
@@ -52,7 +58,7 @@ const Chat = ({socket, playerName}) => {
           name="message"
           type="text"
           onChange={handleChange}
-          value={message}
+          value={inputText}
         />
       </form>
     </div>
