@@ -19,7 +19,6 @@ class PhaseMachine {
   }
 
   increment() {
-    this.cancelTimer();
     this.currentIndex = (this.currentIndex + 1) % this.PHASE_COUNT;
     this.setTimer(this.currentPhase().after, this.time());
   }
@@ -37,23 +36,17 @@ class PhaseMachine {
   }
 
   timedOut() {
-    return !this.timer
+    return !this.timer;
   }
 
   setTimer(after, timeout) {
     console.log('SET TIMER FOR ', this.name())
+    clearTimeout(this.timer);
     const afterAction = () => {
-      this.cancelTimer();
+      clearTimeout(this.timer);
       after();
     }
     this.timer = setTimeout(afterAction, timeout);
-  }
-
-  cancelTimer() {
-    console.log('CANCEL TIMER FOR', this.name())
-    if (!this.timer) return
-    clearTimeout(this.timer);
-    this.timer = null;
   }
 }
 
