@@ -9,7 +9,8 @@ class GameRoom {
     this.name = name;
     this.io = io;
     this.roomName = 'game';
-    this.room = this.io.sockets.in(this.roomName)
+    this.room = this.io.sockets.in(this.roomName);
+    this.chatRoom = this.io.sockets.in(`${this.roomName}-chat`);
     this.socketCallbacks = {
       addPlayerName: this.addPlayerName,
       addSelectedAnswer: this.addSelectedAnswer,
@@ -150,7 +151,7 @@ class GameRoom {
   }
 
   sendChatMessage = (playerName, message) => {
-    this.room.emit('chat message', playerName, message);
+    this.chatRoom.emit('chat message', playerName, message);
   }
 };
 
