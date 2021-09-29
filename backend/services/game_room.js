@@ -107,23 +107,34 @@ class GameRoom {
   addPlayerName = (socket, name) => {
     // this should probably be done when the player enters the room
     // once the 'active' functionality is in place
-    socket.join(this.roomName);
     const player = this.findPlayerBySocketId(socket.id);
-    player.name = name;
+    player.addName(name);
     console.log('players', this.players);
-    this.room.emit('announce player entry', `${name} is seeking employment`);
+    this.chatRoom.emit('announce player entry', `${name} is seeking employment`);
   }
 
   startRound = () => {
     console.log('START ROUND');
+    this.admitPlayers();
     this.phase.increment();
     this.dealQuestion();
   }
 
   startGame = () => {
     console.log('START GAME');
+    this.admitPlayers();
     this.phase.start();
     this.dealQuestion();
+  }
+
+  admitPlayers = () => {
+    this.players.forEach(player => {
+      if (player.status === 'waiting') {
+        const socket = player.playerSocket.socket;
+        socket.join(this.roomName);
+        player.activate();
+      }
+    });
   }
 
   addSelectedAnswer = (socketId, answer) => {

@@ -4,7 +4,16 @@ class Player {
     this.playerSocket = playerSocket;
     this.socket = this.playerSocket.socket;
     this.name = null;
-    this.active = false;
+    this.status = 'incomplete';
+  }
+
+  addName = (name) => {
+    this.name = name;
+    this.status = 'waiting';
+  }
+
+  activate = () => {
+    this.status = 'active';
   }
 }
 
